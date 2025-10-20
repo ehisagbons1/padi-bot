@@ -1,0 +1,35 @@
+# ========================================
+# YOUR READY-TO-USE .env CONFIGURATION
+# ========================================
+# 
+# INSTRUCTIONS:
+# 1. Create a new file named .env in your project root
+# 2. Copy EVERYTHING below this line into that .env file
+# 3. Save the file
+# 4. You're ready to go!
+#
+# ========================================
+
+PORT=3000
+NODE_ENV=development
+WHATSAPP_PROVIDER=twilio
+
+TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
+TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
+TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+
+# ===================================
+# MongoDB Atlas (Cloud Database)
+# ===================================
+# Get your connection string from: https://cloud.mongodb.com/
+# Click "Connect" → "Connect your application" → Copy connection string
+# Replace <username>, <password> with your database credentials
+MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/whatsapp-bot?retryWrites=true&w=majority
+
+# OR use local MongoDB:
+# MONGODB_URI=mongodb://localhost:27017/whatsapp-bot
+
+APP_URL=http://localhost:3000
+SESSION_TIMEOUT=300000
+WEBHOOK_PATH=/webhook/whatsapp
+

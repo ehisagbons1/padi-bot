@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - WhatsApp Commerce Bot</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <h1>🔐 Admin Login</h1>
+            <p>WhatsApp Commerce Bot</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>💼 Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" data-page="dashboard" class="nav-link active">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" data-page="users" class="nav-link">
+                    <span>👥</span> Users
+                </a>
+                <a href="#" data-page="transactions" class="nav-link">
+                    <span>💳</span> Transactions
+                </a>
+                <a href="#" data-page="giftcards" class="nav-link">
+                    <span>🎁</span> Gift Cards
+                    <span class="badge" id="pendingBadge">0</span>
+                </a>
+                <a href="#" data-page="products" class="nav-link">
+                    <span>📦</span> Products
+                </a>
+                <a href="#" data-page="data-plans" class="nav-link">
+                    <span>📶</span> Data Plans
+                </a>
+                <a href="#" data-page="settings" class="nav-link">
+                    <span>⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-info">
+                    <p id="adminName">Admin</p>
+                    <small id="adminRole">Administrator</small>
+                </div>
+                <button id="logoutBtn" class="btn btn-secondary btn-sm">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="topbar">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="topbar-actions">
+                    <button class="btn btn-icon" onclick="location.reload()">🔄</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <h3 id="statTotalUsers">0</h3>
+                                <p>Total Users</p>
+                                <small><span id="statNewUsers">0</span> new today</small>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💳</div>
+                            <div class="stat-info">
+                                <h3 id="statTotalTx">0</h3>
+                                <p>Transactions</p>
+                                <small><span id="statTodayTx">0</span> today</small>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-info">
+                                <h3 id="statTotalRevenue">₦0</h3>
+                                <p>Total Revenue</p>
+                                <small>₦<span id="statTodayRevenue">0</span> today</small>
+                            </div>
+                        </div>
+                        <div class="stat-card alert">
+                            <div class="stat-icon">⏳</div>
+                            <div class="stat-info">
+                                <h3 id="statPending">0</h3>
+                                <p>Pending Approval</p>
+                                <small>Gift cards</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Recent Transactions</h2>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>User</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTransactions">
+                                    <tr><td colspan="5">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Page -->
+                <div id="usersPage" class="page">
+                    <div class="page-header">
+                        <h2>User Management</h2>
+                        <input type="search" id="userSearch" placeholder="Search users..." class="search-input">
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Phone Number</th>
+                                    <th>Name</th>
+                                    <th>Wallet</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                                <tr><td colspan="6">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="usersPagination" class="pagination"></div>
+                </div>
+
+                <!-- Transactions Page -->
+                <div id="transactionsPage" class="page">
+                    <div class="page-header">
+                        <h2>Transactions</h2>
+                        <div class="filters">
+                            <select id="txTypeFilter" class="filter-select">
+                                <option value="">All Types</option>
+                                <option value="airtime">Airtime</option>
+                                <option value="data">Data</option>
+                                <option value="giftcard_sale">Gift Card</option>
+                                <option value="wallet_funding">Wallet Funding</option>
+                            </select>
+                            <select id="txStatusFilter" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="completed">Completed</option>
+                                <option value="processing">Processing</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>User</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTable">
+                                <tr><td colspan="6">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="txPagination" class="pagination"></div>
+                </div>
+
+                <!-- Gift Cards Page -->
+                <div id="giftcardsPage" class="page">
+                    <div class="page-header">
+                        <h2>Pending Gift Cards</h2>
+                        <span class="badge-lg"><span id="pendingCount">0</span> pending</span>
+                    </div>
+                    <div id="giftcardsContainer">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Products Page -->
+                <div id="productsPage" class="page">
+                    <div class="page-header">
+                        <h2>Gift Card Products</h2>
+                        <button class="btn btn-primary" onclick="showAddProductModal()">+ Add Product</button>
+                    </div>
+                    <div id="productsContainer">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Data Plans Page -->
+                <div id="data-plansPage" class="page">
+                    <div class="page-header">
+                        <h2>Data Plans</h2>
+                        <button class="btn btn-primary" onclick="showAddDataPlanModal()">+ Add Plan</button>
+                    </div>
+                    <div class="filters">
+                        <button class="btn btn-sm" data-network="all">All</button>
+                        <button class="btn btn-sm" data-network="mtn">MTN</button>
+                        <button class="btn btn-sm" data-network="glo">Glo</button>
+                        <button class="btn btn-sm" data-network="airtel">Airtel</button>
+                        <button class="btn btn-sm" data-network="9mobile">9mobile</button>
+                    </div>
+                    <div id="dataPlansContainer">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settingsPage" class="page">
+                    <div class="page-header">
+                        <h2>Settings</h2>
+                        <button class="btn btn-success" onclick="saveSettings()">💾 Save Settings</button>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <h3>Bot Configuration</h3>
+                            <div class="form-group">
+                                <label>Bot Name</label>
+                                <input type="text" id="botName" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Welcome Message</label>
+                                <textarea id="welcomeMessage" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Support Phone</label>
+                                <input type="tel" id="supportPhone" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Support Email</label>
+                                <input type="email" id="supportEmail" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>Service Status</h3>
+                            <div class="form-check">
+                                <input type="checkbox" id="airtimeEnabled">
+                                <label for="airtimeEnabled">Airtime Service</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="dataEnabled">
+                                <label for="dataEnabled">Data Service</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="giftCardEnabled">
+                                <label for="giftCardEnabled">Gift Card Service</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="walletEnabled">
+                                <label for="walletEnabled">Wallet Service</label>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>Maintenance Mode</h3>
+                            <div class="form-check">
+                                <input type="checkbox" id="maintenanceEnabled">
+                                <label for="maintenanceEnabled">Enable Maintenance Mode</label>
+                            </div>
+                            <div class="form-group">
+                                <label>Maintenance Message</label>
+                                <textarea id="maintenanceMessage" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals will be added here dynamically -->
+    <div id="modalContainer"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
