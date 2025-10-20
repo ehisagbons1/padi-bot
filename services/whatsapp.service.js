@@ -35,8 +35,13 @@ class WhatsAppService {
       // Ensure number has whatsapp: prefix
       const toNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
       
+      // Ensure from number has whatsapp: prefix
+      const fromNumber = config.whatsapp.twilio.whatsappNumber.startsWith('whatsapp:') 
+        ? config.whatsapp.twilio.whatsappNumber 
+        : `whatsapp:${config.whatsapp.twilio.whatsappNumber}`;
+      
       const result = await this.twilioClient.messages.create({
-        from: config.whatsapp.twilio.whatsappNumber,
+        from: fromNumber,
         to: toNumber,
         body: message,
       });
