@@ -13,8 +13,10 @@ class SettingsService {
     if (cached) return cached;
 
     const settings = await Settings.getInstance();
-    cache.set('settings', settings);
-    return settings;
+    // Convert to plain object to avoid Mongoose document caching issues
+    const settingsObj = settings.toObject();
+    cache.set('settings', settingsObj);
+    return settingsObj;
   }
 
   // Get bot name
