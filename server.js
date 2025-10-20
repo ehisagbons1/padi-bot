@@ -41,6 +41,18 @@ app.get('/', (req, res) => {
   });
 });
 
+// Debug endpoint to check environment variables
+app.get('/debug', (req, res) => {
+  res.json({
+    whatsappProvider: config.whatsapp.provider,
+    twilioAccountSid: config.whatsapp.twilio.accountSid ? 'SET' : 'NOT SET',
+    twilioAuthToken: config.whatsapp.twilio.authToken ? 'SET' : 'NOT SET',
+    twilioWhatsappNumber: config.whatsapp.twilio.whatsappNumber,
+    mongodbUri: config.database.mongoUri ? 'SET' : 'NOT SET',
+    nodeEnv: config.nodeEnv
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', uptime: process.uptime() });
 });
