@@ -44,6 +44,7 @@ class WhatsAppService {
         from: fromNumber,
         to: toNumber,
         body: message,
+        statusCallback: `${config.app.url}/webhook/whatsapp/status`,
       });
 
       console.log(`✅ Message sent via Twilio: ${result.sid}`);
