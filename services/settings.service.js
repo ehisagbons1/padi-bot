@@ -25,6 +25,11 @@ class SettingsService {
     return settings.bot.name;
   }
 
+  // Clear cache
+  clearCache() {
+    cache.del('settings');
+  }
+
   // Get welcome message
   async getWelcomeMessage() {
     const settings = await this.getBotSettings();

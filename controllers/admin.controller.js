@@ -489,7 +489,9 @@ class AdminController {
   async getSettings(req, res) {
     try {
       const settings = await Settings.getInstance();
-      res.json({ settings });
+      // Convert to plain object to avoid serialization issues
+      const settingsObj = settings.toObject();
+      res.json({ settings: settingsObj });
     } catch (error) {
       console.error('Get settings error:', error);
       res.status(500).json({ error: 'Failed to get settings' });
@@ -513,13 +515,29 @@ class AdminController {
       settings.updatedAt = new Date();
       await settings.save();
 
+      // Clear settings cache
+      const settingsService = require('../services/settings.service');
+      settingsService.clearCache();
+
       res.json({
         message: 'Settings updated successfully',
-        settings,
+        settings: settings.toObject(),
       });
     } catch (error) {
       console.error('Update settings error:', error);
       res.status(500).json({ error: 'Failed to update settings' });
+    }
+  }
+
+  async clearCache(req, res) {
+    try {
+      const settingsService = require('../services/settings.service');
+      settingsService.clearCache();
+      
+      res.json({ message: 'Cache cleared successfully' });
+    } catch (error) {
+      console.error('Clear cache error:', error);
+      res.status(500).json({ error: 'Failed to clear cache' });
     }
   }
 
