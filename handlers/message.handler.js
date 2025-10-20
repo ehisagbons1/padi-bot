@@ -6,8 +6,13 @@ const airtimeHandler = require('./airtime.handler');
 const dataHandler = require('./data.handler');
 const giftcardHandler = require('./giftcard.handler');
 const walletHandler = require('./wallet.handler');
+const RegistrationHandler = require('./registration.handler');
 
 class MessageHandler {
+  constructor() {
+    this.registrationHandler = new RegistrationHandler();
+  }
+
   async handleMessage(phoneNumber, message) {
     try {
       // Get or create user
@@ -22,6 +27,21 @@ class MessageHandler {
         await user.updateLastActive();
       }
 
+      // Check if user needs registration
+      if (await this.registrationHandler.checkRegistrationStatus(user)) {
+        // Get or create session for registration
+        let session = await Session.findOne({ phoneNumber });
+        if (!session) {
+          session = await Session.create({
+            phoneNumber,
+            currentState: 'main_menu',
+          });
+        }
+        
+        // Start registration flow
+        return await this.registrationHandler.handleRegistration(user._id, message, session);
+      }
+
       // Get or create session
       let session = await Session.findOne({ phoneNumber });
       if (!session) {
@@ -33,6 +53,11 @@ class MessageHandler {
 
       // Normalize message
       const normalizedMessage = message.trim().toLowerCase();
+
+      // Check for registration commands
+      if (['register', 'start', 'signup', 'join'].includes(normalizedMessage)) {
+        return await this.registrationHandler.handleRegistration(user._id, message, session);
+      }
 
       // Check for cancel/back commands
       if (['cancel', 'exit', 'stop', 'back', 'menu'].includes(normalizedMessage)) {

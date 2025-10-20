@@ -12,8 +12,17 @@ const sessionSchema = new mongoose.Schema({
   },
   currentFlow: {
     type: String,
-    enum: ['airtime', 'data', 'card_purchase', 'giftcard_sale', 'wallet', 'profile', null],
+    enum: ['airtime', 'data', 'card_purchase', 'giftcard_sale', 'wallet', 'profile', 'registration', null],
     default: null,
+  },
+  flow: {
+    type: String,
+    enum: ['airtime', 'data', 'card_purchase', 'giftcard_sale', 'wallet', 'profile', 'registration', null],
+    default: null,
+  },
+  state: {
+    type: String,
+    default: 'main_menu',
   },
   data: {
     type: mongoose.Schema.Types.Mixed,

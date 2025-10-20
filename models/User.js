@@ -15,6 +15,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  registrationStatus: {
+    type: String,
+    enum: ['pending', 'completed', 'verified'],
+    default: 'pending',
+  },
+  registrationStep: {
+    type: String,
+    enum: ['phone', 'name', 'complete'],
+    default: 'phone',
+  },
   wallet: {
     balance: {
       type: Number,
