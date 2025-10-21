@@ -1,10 +1,10 @@
 const User = require('../models/User');
-const WhatsAppService = require('../services/whatsapp.service');
+const whatsappService = require('../services/whatsapp.service');
 const Session = require('../models/Session');
 
 class RegistrationHandler {
   constructor() {
-    this.whatsappService = new WhatsAppService();
+    this.whatsappService = whatsappService;
   }
 
   // Handle registration flow
