@@ -62,6 +62,15 @@ class WhatsAppController {
         return;
       }
 
+      // Check if this is a sandbox error message first
+      if (message.includes('not connected to a sandbox') || 
+          message.includes('sandbox')) {
+        const SandboxHandler = require('../handlers/sandbox.handler');
+        const sandboxHandler = new SandboxHandler();
+        await sandboxHandler.handleSandboxError(phoneNumber, message);
+        return;
+      }
+
       // Process message
       await messageHandler.handleMessage(phoneNumber, message);
 

@@ -7,10 +7,12 @@ const dataHandler = require('./data.handler');
 const giftcardHandler = require('./giftcard.handler');
 const walletHandler = require('./wallet.handler');
 const RegistrationHandler = require('./registration.handler');
+const SandboxHandler = require('./sandbox.handler');
 
 class MessageHandler {
   constructor() {
     this.registrationHandler = new RegistrationHandler();
+    this.sandboxHandler = new SandboxHandler();
   }
 
   async handleMessage(phoneNumber, message) {
@@ -53,6 +55,11 @@ class MessageHandler {
 
       // Normalize message
       const normalizedMessage = message.trim().toLowerCase();
+
+      // Check for sandbox joining commands
+      if (await this.sandboxHandler.handleSandboxJoin(phoneNumber, message)) {
+        return true;
+      }
 
       // Check for registration commands
       if (['register', 'start', 'signup', 'join'].includes(normalizedMessage)) {
