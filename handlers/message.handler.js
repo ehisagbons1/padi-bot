@@ -30,7 +30,7 @@ class MessageHandler {
       }
 
       // Check if user needs registration
-      if (await this.registrationHandler.checkRegistrationStatus(user)) {
+      if (user && await this.registrationHandler.checkRegistrationStatus(user)) {
         // Get or create session for registration
         let session = await Session.findOne({ phoneNumber });
         if (!session) {
@@ -63,7 +63,12 @@ class MessageHandler {
 
       // Check for registration commands
       if (['register', 'start', 'signup', 'join'].includes(normalizedMessage)) {
-        return await this.registrationHandler.handleRegistration(user._id, message, session);
+        if (user) {
+          return await this.registrationHandler.handleRegistration(user._id, message, session);
+        } else {
+          await whatsappService.sendMessage(phoneNumber, '❌ User not found. Please try again.');
+          return;
+        }
       }
 
       // Check for cancel/back commands
@@ -109,10 +114,22 @@ class MessageHandler {
 
     } catch (error) {
       console.error('Error handling message:', error);
-      await whatsappService.sendMessage(
+      console.error('Error details:', {
         phoneNumber,
-        '❌ Sorry, something went wrong. Please try again by typing *menu*.'
-      );
+        message,
+        error: error.message,
+        stack: error.stack
+      });
+      
+      // Try to send a more helpful error message
+      try {
+        await whatsappService.sendMessage(
+          phoneNumber,
+          `❌ Sorry, something went wrong. Error: ${error.message}\n\nPlease try again by typing *menu*.`
+        );
+      } catch (sendError) {
+        console.error('Failed to send error message:', sendError);
+      }
     }
   }
 }

@@ -29,7 +29,18 @@ class RegistrationHandler {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      await this.whatsappService.sendMessage(userId, '❌ Registration failed. Please try again.');
+      console.error('Registration error details:', {
+        userId,
+        message,
+        error: error.message,
+        stack: error.stack
+      });
+      
+      try {
+        await this.whatsappService.sendMessage(userId, `❌ Registration failed. Error: ${error.message}\n\nPlease try again or type *cancel* to exit.`);
+      } catch (sendError) {
+        console.error('Failed to send registration error message:', sendError);
+      }
     }
   }
 
