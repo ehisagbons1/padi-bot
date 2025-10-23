@@ -80,7 +80,12 @@ class WhatsAppController {
         'sandbox',
         'your number whatsapp is not connected',
         'not connected',
-        'sandbox you need to connect'
+        'sandbox you need to connect',
+        'your number whatsapp is not connected to sandbox',
+        'not connected to sandbox',
+        'sandbox you need to connect it first',
+        'whatsapp is not connected',
+        'number whatsapp is not connected'
       ];
       
       const isSandboxError = sandboxErrorPatterns.some(pattern => 

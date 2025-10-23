@@ -48,6 +48,7 @@ app.get('/debug', (req, res) => {
     twilioAccountSid: config.whatsapp.twilio.accountSid ? 'SET' : 'NOT SET',
     twilioAuthToken: config.whatsapp.twilio.authToken ? 'SET' : 'NOT SET',
     twilioWhatsappNumber: config.whatsapp.twilio.whatsappNumber,
+    twilioSandboxCode: config.whatsapp.twilio.sandboxCode,
     mongodbUri: config.database.mongoUri ? 'SET' : 'NOT SET',
     nodeEnv: config.nodeEnv
   });

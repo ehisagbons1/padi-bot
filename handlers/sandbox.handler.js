@@ -92,7 +92,12 @@ Or reply with *REGISTER* to start the registration process.
       'sandbox',
       'your number whatsapp is not connected',
       'not connected',
-      'sandbox you need to connect'
+      'sandbox you need to connect',
+      'your number whatsapp is not connected to sandbox',
+      'not connected to sandbox',
+      'sandbox you need to connect it first',
+      'whatsapp is not connected',
+      'number whatsapp is not connected'
     ];
     
     const isSandboxError = sandboxErrorPatterns.some(pattern => 
@@ -102,22 +107,36 @@ Or reply with *REGISTER* to start the registration process.
     if (isSandboxError) {
       console.log('✅ Sandbox error confirmed, sending instructions to:', phoneNumber);
       
-      const errorResponse = `❌ *Sandbox Connection Required*
+      // Get the actual sandbox code from Twilio console
+      const sandboxCode = this.sandboxCode || 'join your-sandbox-code';
+      
+      const errorResponse = `❌ *Twilio Sandbox Connection Required*
 
-It looks like you haven't joined our WhatsApp sandbox yet.
+Your WhatsApp number is not connected to our sandbox yet.
 
-📱 *To join, send this message* to +14155238886:
-\`${this.sandboxCode}\`
+🔗 *To connect your number:*
 
-🔄 *Steps:*
-1. Copy the message above
-2. Send it to +14155238886
-3. Wait for "You are all set!" confirmation
-4. Come back and send any message to start
+1️⃣ *Go to your Twilio Console:*
+   https://console.twilio.com/us1/develop/sms/settings/whatsapp-sandbox
 
-💡 *After joining, you can register and use all our services!*
+2️⃣ *Find your sandbox code* (looks like: join <code>)
 
-*Need help?* Contact support.`;
+3️⃣ *Send that exact message* to +14155238886
+
+4️⃣ *Wait for confirmation* from WhatsApp
+
+5️⃣ *Then come back and send any message* to start using our bot
+
+📱 *Example:* If your sandbox code is "join abc-123", send:
+\`join abc-123\`
+
+💡 *After connecting, you can:*
+• Register and use our services
+• Buy airtime and data
+• Sell gift cards
+• Manage your wallet
+
+*Need help?* Check your Twilio console for the exact sandbox code.`;
 
       try {
         await this.whatsappService.sendMessage(phoneNumber, errorResponse);
