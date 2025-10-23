@@ -110,7 +110,13 @@ Or reply with *REGISTER* to start the registration process.
       // Get the actual sandbox code from Twilio console
       const sandboxCode = this.sandboxCode || 'join your-sandbox-code';
       
-      const errorResponse = `❌ *Twilio Sandbox Connection Required*
+      // If still using default, provide instructions to get the real code
+      const isDefaultCode = sandboxCode === 'join your-sandbox-code';
+      
+      let errorResponse;
+      
+      if (isDefaultCode) {
+        errorResponse = `❌ *Twilio Sandbox Connection Required*
 
 Your WhatsApp number is not connected to our sandbox yet.
 
@@ -119,16 +125,18 @@ Your WhatsApp number is not connected to our sandbox yet.
 1️⃣ *Go to your Twilio Console:*
    https://console.twilio.com/us1/develop/sms/settings/whatsapp-sandbox
 
-2️⃣ *Find your sandbox code* (looks like: join <code>)
+2️⃣ *Find your sandbox code* (looks like: "join <code>")
 
-3️⃣ *Send that exact message* to +14155238886
+3️⃣ *Send that EXACT message* to +14155238886
 
-4️⃣ *Wait for confirmation* from WhatsApp
+4️⃣ *Wait for "You are all set!" confirmation*
 
 5️⃣ *Then come back and send any message* to start using our bot
 
-📱 *Example:* If your sandbox code is "join abc-123", send:
+📱 *Example:* If you see "join abc-123", send exactly:
 \`join abc-123\`
+
+⚠️ *Important:* Use the EXACT code from your Twilio console!
 
 💡 *After connecting, you can:*
 • Register and use our services
@@ -136,7 +144,29 @@ Your WhatsApp number is not connected to our sandbox yet.
 • Sell gift cards
 • Manage your wallet
 
-*Need help?* Check your Twilio console for the exact sandbox code.`;
+*Need help?* The sandbox code is unique to your Twilio account.`;
+      } else {
+        errorResponse = `❌ *Twilio Sandbox Connection Required*
+
+Your WhatsApp number is not connected to our sandbox yet.
+
+🔗 *To connect your number:*
+
+1️⃣ *Send this EXACT message* to +14155238886:
+\`${sandboxCode}\`
+
+2️⃣ *Wait for "You are all set!" confirmation*
+
+3️⃣ *Then come back and send any message* to start using our bot
+
+💡 *After connecting, you can:*
+• Register and use our services
+• Buy airtime and data
+• Sell gift cards
+• Manage your wallet
+
+*Need help?* Contact support if you have issues.`;
+      }
 
       try {
         await this.whatsappService.sendMessage(phoneNumber, errorResponse);
