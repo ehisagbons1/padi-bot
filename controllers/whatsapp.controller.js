@@ -6,15 +6,27 @@ class WhatsAppController {
   // Verify webhook (for Meta WhatsApp Cloud API)
   async verifyWebhook(req, res) {
     try {
+      // Check if this is a Twilio webhook (no query parameters)
+      if (config.whatsapp.provider === 'twilio') {
+        console.log('✅ Twilio webhook endpoint - no verification needed');
+        res.status(200).json({ 
+          status: 'OK', 
+          provider: 'twilio',
+          message: 'Webhook endpoint ready for Twilio messages'
+        });
+        return;
+      }
+
+      // Meta WhatsApp Cloud API verification
       const mode = req.query['hub.mode'];
       const token = req.query['hub.verify_token'];
       const challenge = req.query['hub.challenge'];
 
       if (mode === 'subscribe' && token === config.whatsapp.meta.verifyToken) {
-        console.log('✅ Webhook verified');
+        console.log('✅ Meta webhook verified');
         res.status(200).send(challenge);
       } else {
-        console.log('❌ Webhook verification failed');
+        console.log('❌ Meta webhook verification failed');
         res.status(403).send('Forbidden');
       }
     } catch (error) {
