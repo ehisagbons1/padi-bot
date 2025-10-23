@@ -63,8 +63,20 @@ class WhatsAppController {
       }
 
       // Check if this is a sandbox error message first
-      if (message.includes('not connected to a sandbox') || 
-          message.includes('sandbox')) {
+      const sandboxErrorPatterns = [
+        'not connected to a sandbox',
+        'sandbox',
+        'your number whatsapp is not connected',
+        'not connected',
+        'sandbox you need to connect'
+      ];
+      
+      const isSandboxError = sandboxErrorPatterns.some(pattern => 
+        message.toLowerCase().includes(pattern.toLowerCase())
+      );
+      
+      if (isSandboxError) {
+        console.log('🔍 Sandbox error detected:', message);
         const SandboxHandler = require('../handlers/sandbox.handler');
         const sandboxHandler = new SandboxHandler();
         await sandboxHandler.handleSandboxError(phoneNumber, message);
@@ -72,7 +84,19 @@ class WhatsAppController {
       }
 
       // Process message
-      await messageHandler.handleMessage(phoneNumber, message);
+      try {
+        await messageHandler.handleMessage(phoneNumber, message);
+      } catch (error) {
+        // Check if this might be a sandbox error that wasn't caught
+        if (error.message && error.message.includes('sandbox')) {
+          console.log('🔍 Sandbox error caught in message handler:', error.message);
+          const SandboxHandler = require('../handlers/sandbox.handler');
+          const sandboxHandler = new SandboxHandler();
+          await sandboxHandler.handleSandboxError(phoneNumber, error.message);
+          return;
+        }
+        throw error; // Re-throw if not a sandbox error
+      }
 
     } catch (error) {
       console.error('Error handling message:', error);

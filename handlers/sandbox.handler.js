@@ -85,8 +85,22 @@ Or reply with *REGISTER* to start the registration process.
 
   // Handle sandbox error messages
   async handleSandboxError(phoneNumber, errorMessage) {
-    if (errorMessage.includes('not connected to a sandbox') || 
-        errorMessage.includes('sandbox')) {
+    console.log('🔍 Processing sandbox error for:', phoneNumber, 'Message:', errorMessage);
+    
+    const sandboxErrorPatterns = [
+      'not connected to a sandbox',
+      'sandbox',
+      'your number whatsapp is not connected',
+      'not connected',
+      'sandbox you need to connect'
+    ];
+    
+    const isSandboxError = sandboxErrorPatterns.some(pattern => 
+      errorMessage.toLowerCase().includes(pattern.toLowerCase())
+    );
+    
+    if (isSandboxError) {
+      console.log('✅ Sandbox error confirmed, sending instructions to:', phoneNumber);
       
       const errorResponse = `❌ *Sandbox Connection Required*
 
@@ -105,10 +119,17 @@ It looks like you haven't joined our WhatsApp sandbox yet.
 
 *Need help?* Contact support.`;
 
-      await this.whatsappService.sendMessage(phoneNumber, errorResponse);
-      return true;
+      try {
+        await this.whatsappService.sendMessage(phoneNumber, errorResponse);
+        console.log('✅ Sandbox instructions sent to:', phoneNumber);
+        return true;
+      } catch (error) {
+        console.error('❌ Failed to send sandbox instructions:', error);
+        return false;
+      }
     }
     
+    console.log('❌ Not a sandbox error, ignoring');
     return false;
   }
 
