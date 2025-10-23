@@ -37,7 +37,11 @@ class RegistrationHandler {
       });
       
       try {
-        await this.whatsappService.sendMessage(userId, `❌ Registration failed. Error: ${error.message}\n\nPlease try again or type *cancel* to exit.`);
+        // Use phone number instead of userId for sending messages
+        const user = await User.findById(userId);
+        if (user) {
+          await this.whatsappService.sendMessage(user.phoneNumber, `❌ Registration failed. Error: ${error.message}\n\nPlease try again or type *cancel* to exit.`);
+        }
       } catch (sendError) {
         console.error('Failed to send registration error message:', sendError);
       }
@@ -46,7 +50,7 @@ class RegistrationHandler {
 
   // Start registration process
   async startRegistration(user, session) {
-    await this.whatsappService.sendMessage(user._id, 
+    await this.whatsappService.sendMessage(user.phoneNumber, 
       `🎉 Welcome to ${session.settings?.bot?.name || 'WhatsApp Commerce Bot'}!
       
 📱 *Registration Required*
@@ -72,7 +76,7 @@ Or simply reply with: *REGISTER*`
     let phoneNumber = this.extractPhoneNumber(messageText);
     
     if (!phoneNumber) {
-      await this.whatsappService.sendMessage(user._id,
+      await this.whatsappService.sendMessage(user.phoneNumber,
         `📱 *Invalid Phone Number*
         
 Please provide a valid Nigerian phone number in one of these formats:
@@ -92,7 +96,7 @@ Or reply *CANCEL* to exit registration.`
     });
 
     if (existingUser) {
-      await this.whatsappService.sendMessage(user._id,
+      await this.whatsappService.sendMessage(user.phoneNumber,
         `❌ *Phone Number Already Registered*
         
 This phone number is already registered with another account.
@@ -108,7 +112,7 @@ Reply *CANCEL* to exit registration.`
     user.registrationStep = 'name';
     await user.save();
 
-    await this.whatsappService.sendMessage(user._id,
+    await this.whatsappService.sendMessage(user.phoneNumber,
       `✅ *Phone Number Verified: ${phoneNumber}*
       
 Now, please provide your full name:
@@ -131,7 +135,7 @@ Reply *CANCEL* to exit registration.`
 
     // Validate name (at least 2 characters, no numbers)
     if (messageText.length < 2 || /\d/.test(messageText)) {
-      await this.whatsappService.sendMessage(user._id,
+      await this.whatsappService.sendMessage(user.phoneNumber,
         `❌ *Invalid Name*
         
 Please provide a valid name (at least 2 characters, no numbers):
@@ -180,12 +184,12 @@ Welcome to ${session.settings?.bot?.name || 'WhatsApp Commerce Bot'}, ${user.nam
 
 Type *MENU* to see all options or choose from the menu below:`;
 
-    await this.whatsappService.sendMessage(user._id, welcomeMessage);
+    await this.whatsappService.sendMessage(user.phoneNumber, welcomeMessage);
 
     // Send main menu
     const MenuHandler = require('./menu.handler');
     const menuHandler = new MenuHandler();
-    await menuHandler.sendMainMenu(user._id, session);
+    await menuHandler.sendMainMenu(user.phoneNumber, user);
 
     return true;
   }
@@ -201,7 +205,7 @@ Type *MENU* to see all options or choose from the menu below:`;
     session.state = 'main_menu';
     await session.save();
 
-    await this.whatsappService.sendMessage(user._id,
+    await this.whatsappService.sendMessage(user.phoneNumber,
       `❌ *Registration Cancelled*
       
 You can register later by sending *REGISTER* or *START*.
