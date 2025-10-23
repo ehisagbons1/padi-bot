@@ -57,6 +57,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', uptime: process.uptime() });
 });
 
+// Simple test route
+app.get('/test', (req, res) => {
+  res.json({ 
+    message: 'Server is working!',
+    timestamp: new Date().toISOString(),
+    routes: {
+      webhook: '/webhook/whatsapp',
+      admin: '/admin',
+      health: '/health',
+      debug: '/debug'
+    }
+  });
+});
+
 // Test sandbox error handling
 app.post('/test-sandbox', (req, res) => {
   const { phoneNumber, message } = req.body;
@@ -89,8 +103,15 @@ app.post('/test-sandbox', (req, res) => {
   });
 });
 
-// Sandbox error detection middleware
+// Debug middleware for all webhook requests
 app.use('/webhook', (req, res, next) => {
+  console.log('🔍 Webhook request received:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    body: req.body
+  });
+  
   // Check if the request body contains sandbox error messages
   if (req.body && req.body.Body) {
     const body = req.body.Body.toLowerCase();
@@ -139,9 +160,30 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
+// 404 handler with debugging
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  console.log('❌ Route not found:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    body: req.body
+  });
+  res.status(404).json({ 
+    error: 'Route not found',
+    method: req.method,
+    url: req.url,
+    availableRoutes: [
+      'GET /',
+      'GET /health', 
+      'GET /debug',
+      'POST /test-sandbox',
+      'GET /webhook/whatsapp',
+      'POST /webhook/whatsapp',
+      'POST /webhook/whatsapp/status',
+      'GET /admin',
+      'POST /api/admin/*'
+    ]
+  });
 });
 
 // Start server
