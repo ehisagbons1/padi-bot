@@ -57,6 +57,63 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', uptime: process.uptime() });
 });
 
+// Test sandbox error handling
+app.post('/test-sandbox', (req, res) => {
+  const { phoneNumber, message } = req.body;
+  
+  if (!phoneNumber || !message) {
+    return res.status(400).json({ error: 'phoneNumber and message required' });
+  }
+  
+  console.log('🧪 Testing sandbox error handling:', { phoneNumber, message });
+  
+  // Simulate the sandbox error detection
+  const sandboxPatterns = [
+    'not connected to a sandbox',
+    'sandbox',
+    'your number whatsapp is not connected',
+    'not connected',
+    'sandbox you need to connect'
+  ];
+  
+  const isSandboxError = sandboxPatterns.some(pattern => 
+    message.toLowerCase().includes(pattern.toLowerCase())
+  );
+  
+  res.json({
+    message: message,
+    isSandboxError: isSandboxError,
+    detectedPatterns: sandboxPatterns.filter(pattern => 
+      message.toLowerCase().includes(pattern.toLowerCase())
+    )
+  });
+});
+
+// Sandbox error detection middleware
+app.use('/webhook', (req, res, next) => {
+  // Check if the request body contains sandbox error messages
+  if (req.body && req.body.Body) {
+    const body = req.body.Body.toLowerCase();
+    const sandboxPatterns = [
+      'not connected to a sandbox',
+      'sandbox',
+      'your number whatsapp is not connected',
+      'not connected',
+      'sandbox you need to connect'
+    ];
+    
+    const isSandboxError = sandboxPatterns.some(pattern => 
+      body.includes(pattern.toLowerCase())
+    );
+    
+    if (isSandboxError) {
+      console.log('🔍 Sandbox error detected in middleware:', req.body.Body);
+      // Let the request continue to be handled by our sandbox handler
+    }
+  }
+  next();
+});
+
 // WhatsApp webhook routes
 app.use('/webhook', whatsappRoutes);
 
@@ -66,6 +123,16 @@ app.use('/api/admin', adminRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
+  
+  // Check if this is a sandbox-related error
+  if (err.message && err.message.toLowerCase().includes('sandbox')) {
+    console.log('🔍 Sandbox error detected in server middleware:', err.message);
+    return res.status(400).json({ 
+      error: 'Sandbox connection required',
+      message: 'Please join the WhatsApp sandbox first'
+    });
+  }
+  
   res.status(500).json({ 
     error: 'Internal server error', 
     message: config.nodeEnv === 'development' ? err.message : 'Something went wrong'
